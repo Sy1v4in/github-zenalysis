@@ -75,11 +75,11 @@ if (typeof com == "undefined") {
         committerLi: function(contributor) {
             var contributorName = contributor.name;
             var contributorLogin = contributor.login;
-            if (contributorName === null || contributorName === '') {
+            if (contributorName == null || contributorName == '') {
                 contributorName = contributorLogin;
             }
             var contributorType = contributor.type;
-            if (contributorType === null || contributorType === '') {
+            if (contributorType == null || contributorType == '') {
                 contributorType = 'anonymous';
             }
             var li = $('<li/>', {
@@ -104,7 +104,7 @@ if (typeof com == "undefined") {
                 });
                 li.append(self.div('contributor-blog').append(anchor));
             }
-            if (contributor.location !== null && contributor.location != 'undefined') {
+            if (contributor.location != null && contributor.location != 'undefined') {
                 li.append(self.div('location', contributor.location));
                 li.append(self.div('separator', ' | '));
             }
@@ -121,10 +121,14 @@ if (typeof com == "undefined") {
             dataTable.addColumn('string', 'Name');
             dataTable.addColumn('string', 'parent');
             dataTable.addColumn('number', 'Contribution count (size)');
-            dataTable.addRow(['Commiters', null, 0]);
+            
+            dataTable.addRow(['Committers', null, 0]);
+            dataTable.addRow(['Anonymous', 'Committers', 0]);
+            dataTable.addRow(['User', 'Committers', 0]);
+            
             for (var committerIndex in commitsByUser) {
                 var committer = commitsByUser[committerIndex];
-                dataTable.addRow([committer.user, 'Commiters', committer.commitCount]);
+                dataTable.addRow([committer.user, committer.type, committer.commitCount]);
             }
             // Create and draw the visualization.
             var elt = document.getElementById(divId);

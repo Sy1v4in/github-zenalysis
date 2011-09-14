@@ -52,10 +52,10 @@ com.github.Repository.prototype = {
 				
 				$.each(contributors, function(i, contributor) {
 					// Some User does not have defined name, set the login as name
-					if (contributor.name === null || contributor.name === '') {
+					if (contributor.name == null || contributor.name == '') {
 						contributor.name = contributor.login;
 					}
-					if (contributor.type === null || contributor.type === '') {
+					if (contributor.type == null || contributor.type == '') {
 						contributor.type = 'anonymous';
 					}
 					displayContributor(contributor, i);
@@ -73,11 +73,16 @@ com.github.Repository.prototype = {
 	},
 
 	newCommit: function(currentData) {
+		var type = 'User';
 		var login = currentData.login;
-		if (login === '') { login = currentData.author; }
+		if (login == '') {
+			login = currentData.author;
+			type = 'Anonymous';
+		}
 		var commit = {
 			user: currentData.author,
 			login: login,
+			type: type,
 			commitCount: 1,
 			date: currentData.date,
 			gravatar: currentData.gravatar
@@ -90,14 +95,14 @@ com.github.Repository.prototype = {
 	 */
 	getCommitsByUser: function() {
 		var	commits = this.Commits.commitsByUser;
-		if (commits === null) {
+		if (commits == null) {
 			commits = [];
 			var rowData = this.Commits.rowData;
 			var commitCount = Math.min(MAX_COMMIT_COUNT, rowData.length);
 			for (var i = 0; i < commitCount; i++) {
 				var currentData = rowData[i];
 				var commit = commits[currentData.author];
-				if (commit === null) {
+				if (commit == null) {
 					commits[currentData.author] = this.newCommit(currentData);
 				}
 				else { commit.commitCount++; }
@@ -114,7 +119,7 @@ com.github.Repository.prototype = {
 	  */
 	getCommitsByDate: function() {
 		var	commits = this.Commits.commitsByDate;
-		if (commits === null) {
+		if (commits == null) {
 			commits = [];
 			var rowData = this.Commits.rowData;
 			var commitCount = Math.min(MAX_COMMIT_COUNT, rowData.length);
@@ -122,7 +127,7 @@ com.github.Repository.prototype = {
 				var currentData = rowData[i];
 				var dateAsDay = currentData.date.substring(0, 10);
 				var commit = commits[dateAsDay];
-				if (commit === null) {
+				if (commit == null) {
 					commits[dateAsDay] = this.newCommit(currentData);
 				}
 				else { commit.commitCount++; }
