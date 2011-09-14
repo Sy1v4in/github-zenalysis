@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Analysis of GitHub repositories activities</title>
+	<link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap-1.2.0.min.css">
+	<link rel="stylesheet" href="stylesheets/styles.css">
+	<link rel="stylesheet" href="stylesheets/search-styles.css" media="screen" />
+	
+	<link type="text/css" href="stylesheets/jquery.jscrollpane.css" rel="stylesheet" media="all" />
+	
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="js/ext/jquery-1.6.1.min.js"></script>
+
+	<script type="text/javascript" src="js/ext/jquery.mousewheel.js"></script>
+	<script type="text/javascript" src="js/ext/jquery.jscrollpane.min.js"></script>
+
+    <script language="javascript" type="text/javascript" src="js/ext/jquery.flot.js"></script>
+    <script language="javascript" type="text/javascript" src="js/ext/jquery.flot.selection.js"></script>
+    <script type="text/javascript" src="js/github-tools.js"></script>
+    <script type="text/javascript" src="js/github-tools-ui.js"></script>
+    <script type="text/javascript">
+
+	repository = new com.github.Repository();
+	
+	function contributors() {
+		$("#result-list .list").empty();
+		repository.showContributors(com.github.ui.showCommitor, function() {
+			$("#result-list").jScrollPane({hideFocus: true });
+		});
+	}
+
+	function showCommittersAsTreeMap() {
+		$('#analysis').empty();
+		com.github.ui.showCommittersAsTreeMap(repository.getCommitsByUser(), 'analysis');
+	}
+	
+	function showCommitsOnTimeline() {
+		$('#analysis').empty();
+		com.github.ui.showCommitsOnTimeline(repository.getCommitsByDate(), '#analysis');
+	}
+    </script>
+</head>
+
+<body >
+
+    <div id="masthead">
+      <div class="inner">
+        <div class="container">
+          <h1>GitHub Analysis</h1>
+          <p class="lead">Analysis of GitHub repositories activities.</p>
+        </div>
+      </div>
+    </div>
+
+	<section id="commands">
+		<div class="row">
+	  		<div class="span16 columns">
+	  			<ul>
+		  			<li><a href="" onclick="contributors(); return false;">Committers</a></li>
+					<li><a href="" onclick="showCommittersAsTreeMap(); return false;">User commits</a></li>
+					<li><a href="" onclick="showCommitsOnTimeline(); return false;">Commits timeline</a></li>
+				</ul>
+			</div>
+		</div>
+	</section>
+
+	<section id="results">
+		<div class="row">
+	  		<div id="result-list" class="span8 columns scrollbar">
+	  			<ul class='list' />
+			</div>
+			<div id="analysis" class="span8 columns">
+			</div>
+		</div>
+	</section>
+
+</body>
+</html>

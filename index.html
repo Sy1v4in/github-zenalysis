@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>Analysis of GitHub repositories activities</title>
+	<link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap-1.2.0.min.css" />
+	
+	<link type="text/css" href="stylesheets/jquery.jscrollpane.css" rel="stylesheet" media="all" />
+	
+	<link rel="stylesheet" href="stylesheets/styles.css" media="screen" />
+	<link rel="stylesheet" href="stylesheets/search-styles.css" media="screen" />
+
+    
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="js/ext/jquery-1.6.1.min.js"></script>
+
+	<script type="text/javascript" src="js/ext/jquery.mousewheel.js"></script>
+	<script type="text/javascript" src="js/ext/jquery.jscrollpane.min.js"></script>
+
+
+    <script type="text/javascript" src="js/github-tools.js"></script>
+    <script type="text/javascript" src="js/github-tools-ui.js"></script>
+    
+    <script type="text/javascript">
+	function addListeners() {
+		$("#result-list .list a").click(function(e){
+			e.preventDefault();
+		});
+		$("#result-list .list li").click(function(){
+			var activeElt = $("#results .active");
+			activeElt.removeClass("active");
+			activeElt.addClass("inactive");
+			var id = $(this).addClass("active").find("h2 a").attr("href");
+			$(id).addClass("active");
+			$(this).removeClass("inactive");
+		});
+	}
+	
+	function post() {
+		addListeners();
+		$("#result-list").jScrollPane({hideFocus: true });
+	}
+	
+	function cleanResults() {
+		$(".list").empty();
+		$("#result-details").empty();
+	}
+	
+	function searchRepository() {
+		cleanResults();
+		com.github.utils.searchRepository(com.github.ui.showRepository, post);
+	}
+    </script>
+</head>
+<body>
+
+    <div id="masthead">
+      <div class="inner">
+        <div class="container">
+          <h1>GitHub Analysis</h1>
+          <p class="lead">Analysis of GitHub repositories activities.</p>
+          <p>GitHub is a Web based hosting service for software development projects’ source code. For a given project
+				it contains the history of the commits and activities.<br />
+            	This Webapp aims at giving key analysis charts of a <a href='http://github.com'>github</a> repository.</p>
+        </div>
+      </div>
+    </div>
+
+	<section id="search">
+		<div class="row">
+	  		<div class="span2 columns">&nbsp;</div>
+	  		<div class="span4 columns">
+	  			<h2>search repository</h2>
+	  		</div>
+	  		<div class="span10 columns">
+				<form onsubmit="searchRepository(); return false">
+					<input id="searchText" type="text"/>
+					<a href="#" class="button info" onclick="searchRepository(); return false">search</a>
+				</form>
+			</div>
+		</div>
+	</section>
+
+
+	<section id="results">
+		<div class="row">
+	  		<div id="result-list" class="span8 columns scrollbar">
+				<ul class="list" />
+			</div>
+			<div id="result-details" class="span8 columns">
+			</div>
+		</div>
+	</section>
+
+</body>
+</html>
