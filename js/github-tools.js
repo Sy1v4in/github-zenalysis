@@ -6,7 +6,7 @@ com.github = com.github || {};
 
 // constructor
 com.github.Repository = function() {
-	var readParams = new Array();
+	var readParams = [];
 	var query = window.location.search.substring(1);
 	var params = query.split('&');
 	for (var i=0; i<params.length; i++) {
@@ -29,18 +29,18 @@ com.github.Repository.prototype = {
     nethash: null,
     contributors: null,
     Commits: {
-    	rowData: null,
-    	commitsByUser: null,
-    	commitsByDate: null,
+        rowData: null,
+        commitsByUser: null,
+        commitsByDate: null
     },
 
 
 	showContributors: function(displayContributor, postFunction) {
-		var url = 'http://github.com/api/v2/json/repos/show/'
-				 + this.owner
-				 + '/'
-				 + this.name
-				 + '/contributors/anon';
+		var url = 'http://github.com/api/v2/json/repos/show/' +
+                this.owner +
+                '/' +
+                this.name +
+                '/contributors/anon';
 		$.ajax({
 			url: url,
 			dataType: 'jsonp',
@@ -52,10 +52,10 @@ com.github.Repository.prototype = {
 				
 				$.each(contributors, function(i, contributor) {
 					// Some User does not have defined name, set the login as name
-					if (contributor.name == null || contributor.name == '') {
+					if (contributor.name === null || contributor.name === '') {
 						contributor.name = contributor.login;
 					}
-					if (contributor.type == null || contributor.type == '') {
+					if (contributor.type === null || contributor.type === '') {
 						contributor.type = 'anonymous';
 					}
 					displayContributor(contributor, i);
@@ -74,7 +74,7 @@ com.github.Repository.prototype = {
 
 	newCommit: function(currentData) {
 		var login = currentData.login;
-		if (login == '') { login = currentData.author; }
+		if (login === '') { login = currentData.author; }
 		var commit = {
 			user: currentData.author,
 			login: login,
@@ -90,14 +90,14 @@ com.github.Repository.prototype = {
 	 */
 	getCommitsByUser: function() {
 		var	commits = this.Commits.commitsByUser;
-		if (commits == null) {
-			commits = new Array();
+		if (commits === null) {
+			commits = [];
 			var rowData = this.Commits.rowData;
 			var commitCount = Math.min(MAX_COMMIT_COUNT, rowData.length);
 			for (var i = 0; i < commitCount; i++) {
 				var currentData = rowData[i];
 				var commit = commits[currentData.author];
-				if (commit == null) {
+				if (commit === null) {
 					commits[currentData.author] = this.newCommit(currentData);
 				}
 				else { commit.commitCount++; }
@@ -114,15 +114,15 @@ com.github.Repository.prototype = {
 	  */
 	getCommitsByDate: function() {
 		var	commits = this.Commits.commitsByDate;
-		if (commits == null) {
-			commits = new Array();
+		if (commits === null) {
+			commits = [];
 			var rowData = this.Commits.rowData;
 			var commitCount = Math.min(MAX_COMMIT_COUNT, rowData.length);
 			for (var i = 0; i < commitCount; i++) {
 				var currentData = rowData[i];
 				var dateAsDay = currentData.date.substring(0, 10);
 				var commit = commits[dateAsDay];
-				if (commit == null) {
+				if (commit === null) {
 					commits[dateAsDay] = this.newCommit(currentData);
 				}
 				else { commit.commitCount++; }
@@ -147,7 +147,7 @@ com.github.utils = {
             dataType: 'jsonp',
             success: function(data) {
                 $.each(data.repositories, function(i, repository) {
-                	displayRepository(repository, i);
+                    displayRepository(repository, i);
                 });
                 postFunction();
             }
@@ -155,7 +155,11 @@ com.github.utils = {
     },
 		
 	loadCommits: function(repository) {
-		var url = 'http://github.com/' + repository.owner + '/' + repository.name + '/network_meta';
+		var url = 'http://github.com/' +
+            repository.owner +
+            '/' +
+            repository.name +
+            '/network_meta';
 		$.ajax({
 			url: url,
 			dataType: 'jsonp',
@@ -167,7 +171,12 @@ com.github.utils = {
 	},
 			
 	loadCommitsFromNethash: function(repository) {
-		var url = 'http://github.com/' + repository.owner + '/' + repository.name + '/network_data_chunk?nethash=' + repository.nethash;
+		var url = 'http://github.com/' +
+                repository.owner +
+                '/' +
+                repository.name +
+                '/network_data_chunk?nethash=' +
+                repository.nethash;
 		$.ajax({
 			url: url,
 			dataType: 'jsonp',
@@ -183,6 +192,6 @@ com.github.utils = {
 			}
 		});
 	}
-}
+};
 
 })();
