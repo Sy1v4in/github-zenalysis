@@ -21,24 +21,37 @@
     <script type="text/javascript" src="js/github-tools-ui.js"></script>
     <script type="text/javascript">
 
-	repository = new com.github.Repository();
+	$(document).ready(function(){
+		function showCommitters(repository) {
+			repository.showContributors(com.github.ui.showCommitor, function() {
+				$("#result-list").jScrollPane({hideFocus: true });
+			});
+		}
 	
-	function contributors() {
-		$("#result-list .list").empty();
-		repository.showContributors(com.github.ui.showCommitor, function() {
-			$("#result-list").jScrollPane({hideFocus: true });
-		});
-	}
-
-	function showCommittersAsTreeMap() {
-		$('#analysis').empty();
-		com.github.ui.showCommittersAsTreeMap(repository.getCommitsByUser(), 'analysis');
-	}
+		function showCommittersAsTreeMap(repository) {
+			repository.commitsByUser(com.github.ui.showCommittersAsTreeMap, 'analysis');
+		}
+		
+		function showCommitsOnTimeline(repository) {
+			repository.commitsByDate(com.github.ui.showCommitsOnTimeline, '#analysis');
+		}
+		
+		var repository = new com.github.Repository();
+		if (repository.isCommittersAnalysis()) {
+			showCommitters(repository);
+		}
+		else if (repository.isImpactAnalysis()) {
+			showCommittersAsTreeMap(repository);
+		}
+		else if (repository.isTimelineAnalysis()) {
+			showCommitsOnTimeline(repository);
+		}
+		$('#committers').attr('href', repository.committersUrl());
+		$('#impact').attr('href', repository.impactUrl());
+		$('#timeline').attr('href', repository.timelineUrl());
+		
+	});
 	
-	function showCommitsOnTimeline() {
-		$('#analysis').empty();
-		com.github.ui.showCommitsOnTimeline(repository.getCommitsByDate(), '#analysis');
-	}
     </script>
 </head>
 
@@ -57,9 +70,9 @@
 		<div class="row">
 	  		<div class="span16 columns">
 	  			<ul>
-		  			<li><a href="" onclick="contributors(); return false;">Committers</a></li>
-					<li><a href="" onclick="showCommittersAsTreeMap(); return false;">User commits</a></li>
-					<li><a href="" onclick="showCommitsOnTimeline(); return false;">Commits timeline</a></li>
+		  			<li><a id="committers">Committers</a></li>
+					<li><a id="impact">User commits</a></li>
+					<li><a id="timeline">Commits timeline</a></li>
 				</ul>
 			</div>
 		</div>

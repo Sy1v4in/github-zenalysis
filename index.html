@@ -48,7 +48,8 @@
 	
 	function searchRepository() {
 		cleanResults();
-		com.github.utils.searchRepository(com.github.ui.showRepository, post);
+        var query = document.getElementById('searchText').value;
+		com.github.utils.searchRepository(query, com.github.ui.showRepository, post);
 	}
     </script>
 </head>

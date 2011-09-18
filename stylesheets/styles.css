@@ -2,7 +2,7 @@ body {
   background-color: #F6F6F6;
 }
 
-#masthead, #footer {
+#header, #footer {
   background-color: #D7EAF0;
   background-repeat: no-repeat;
   background-image: -webkit-linear-gradient(#D5E8EE, #D7EAF0);

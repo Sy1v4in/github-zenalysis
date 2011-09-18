@@ -2,9 +2,14 @@
 if (typeof com == "undefined") { com = {}; }
 
 (function() {
+
+// package com.github;
 com.github = com.github || {};
 
-// constructor
+/**
+ * Repository constructor which loads the commit structures according to the 
+ * supplied repository name and user name.
+ */
 com.github.Repository = function() {
 	var readParams = [];
 	var query = window.location.search.substring(1);
@@ -19,21 +24,54 @@ com.github.Repository = function() {
 	}
     this.name = readParams['repo'];
     this.owner = readParams['user'];
-    
-    com.github.utils.loadCommits(this);
+    this.analysis = readParams['analysis'];
 };
 
+
+/**
+ * Repository class definition.
+ */
 com.github.Repository.prototype = {
 	name: null,
     owner: null,
+    analysis: null,
     nethash: null,
     contributors: null,
-    Commits: {
-        rowData: null,
-        commitsByUser: null,
-        commitsByDate: null
-    },
 
+	/**
+	 * Returns the url of the repository page according to its name, its user and the 
+	 * requiered analysis. This method is defined for an internal use to build and return
+	 * each specialized url.
+	 */
+	getUrl: function(analysis) {
+		var url = 'repo.html?user=' + this.owner + '&repo=' + this.name;
+		if (analysis != null) { url += '&analysis=' + analysis; }
+		return url;
+	},
+	
+	/**
+	 * Returns the url of this repository giving access to a page which shows all the 'commiters'
+	 * of the project.
+	 */
+	committersUrl: function() { return this.getUrl(COMMITTERS); },
+	
+	/**
+	 * Returns the url of this repository giving access to a page which shows the impact of
+	 * each user on the project based on the last 100 commits.
+	 */
+	impactUrl: function() { return this.getUrl(IMPACT); },
+
+	/**
+	 * Returns the url of this repository giving access to a page which shows the projection of
+	 * the last 100 commits on a timeline.
+	 */
+	timelineUrl: function() { return this.getUrl(TIMELINE); },
+
+	isCommittersAnalysis: function() { return this.analysis == COMMITTERS; },
+	
+	isImpactAnalysis: function() { return this.analysis == IMPACT; },
+
+	isTimelineAnalysis: function() { return this.analysis == TIMELINE; },
 
 	showContributors: function(displayContributor, postFunction) {
 		var url = 'http://github.com/api/v2/json/repos/show/' +
@@ -66,9 +104,96 @@ com.github.Repository.prototype = {
 	},
 
 
-	sortCommitsByContributionCount: function(commits) {
-		commits.sort(function(firstCommit, secondCommit) {
-			return firstCommit.commitCount - secondCommit.commitCount;
+//	sortCommitsByContributionCount: function(commits) {
+//		commits.sort(function(firstCommit, secondCommit) {
+//			return firstCommit.commitCount - secondCommit.commitCount;
+//		});
+//	},
+
+	sortedCommits: function(showFunction, sortFunction, elementId) {
+	    com.github.utils.loadCommits(this, function(rowData) {
+			var commits = sortFunction(rowData);
+			showFunction(commits, elementId);
+		});
+	},
+	
+	commitsByUser: function(showFunction, elementId) {
+		this.sortedCommits(showFunction,
+				           function(rowData) { return com.github.utils.sortCommitsByUser(rowData); },
+				           elementId);
+	},
+	
+	commitsByDate: function(showFunction, elementId) {
+		this.sortedCommits(showFunction,
+				           function(rowData) { return com.github.utils.sortCommitsByDate(rowData); },
+				           elementId);
+	},
+	
+};
+
+var COMMITTERS = 'committers',
+	IMPACT = 'impact',
+	TIMELINE = 'timeline',
+	MAX_COMMIT_COUNT = 100;
+
+
+// package com.github.utils;
+com.github.utils = {
+// This package contains all the utility services that manipulates a Repository
+
+	/**
+	 * Gets all the repository information according to the supplied search query.
+	 */
+    searchRepository: function(query, displayRepository, postFunction) {
+        var url = 'http://github.com/api/v2/json/repos/search/' + query;
+        $.ajax({
+            url: url,
+            dataType: 'jsonp',
+            success: function(data) {
+                $.each(data.repositories, function(i, repository) {
+                    displayRepository(repository, i);
+                });
+                postFunction();
+            }
+        });
+    },
+		
+	loadCommits: function(repository, postTreatment) {
+		var url = 'http://github.com/' +
+            repository.owner +
+            '/' +
+            repository.name +
+            '/network_meta';
+		$.ajax({
+			url: url,
+			dataType: 'jsonp',
+			success: function(data) {
+				repository.nethash = data.nethash;
+				self.loadCommitsFromNethash(repository, postTreatment);
+			}
+		});
+	},
+			
+	loadCommitsFromNethash: function(repository, postTreatment) {
+		var url = 'http://github.com/' +
+                repository.owner +
+                '/' +
+                repository.name +
+                '/network_data_chunk?nethash=' +
+                repository.nethash;
+		$.ajax({
+			url: url,
+			dataType: 'jsonp',
+			success: function(data) {
+				data.commits.sort(function(firstCommit, secondCommit) {
+					var comparison = null;
+					if (firstCommit.date < secondCommit.date) { comparison = 1; }
+					else if (firstCommit.date == secondCommit.date) { comparison = 0; }
+					else { comparison = -1; }
+					return comparison;
+				});
+				postTreatment(data.commits);
+			}
 		});
 	},
 
@@ -93,110 +218,37 @@ com.github.Repository.prototype = {
 	/**
 	 * Returns and caches all the contributors based on the last 100 commits.
 	 */
-	getCommitsByUser: function() {
-		var	commits = this.Commits.commitsByUser;
-		if (commits == null) {
-			commits = [];
-			var rowData = this.Commits.rowData;
-			var commitCount = Math.min(MAX_COMMIT_COUNT, rowData.length);
-			for (var i = 0; i < commitCount; i++) {
-				var currentData = rowData[i];
-				var commit = commits[currentData.author];
-				if (commit == null) {
-					commits[currentData.author] = this.newCommit(currentData);
-				}
-				else { commit.commitCount++; }
+	sortCommits: function(rowData, key) {
+		var	commits = [];
+		var commitCount = Math.min(MAX_COMMIT_COUNT, rowData.length);
+		for (var i = 0; i < commitCount; i++) {
+			var currentData = rowData[i];
+			var currentKey = key(currentData);
+			var commit = commits[currentKey];
+			if (commit == null) {
+				commits[currentKey] = self.newCommit(currentData);
 			}
-			
-			// And caches the result
-			this.Commits.commitsByUser = commits;
+			else { commit.commitCount++; }
 		}
 		return commits;
 	},
 
 	/**
+	 * Returns and caches all the contributors based on the last 100 commits.
+	 */
+	sortCommitsByUser: function(rowData) {
+		return self.sortCommits(rowData, function(data) { return data.author; });
+	},
+
+	/**
 	  * Returns all the commits, indexed by dates, based on the last 100 commits.
 	  */
-	getCommitsByDate: function() {
-		var	commits = this.Commits.commitsByDate;
-		if (commits == null) {
-			commits = [];
-			var rowData = this.Commits.rowData;
-			var commitCount = Math.min(MAX_COMMIT_COUNT, rowData.length);
-			for (var i = 0; i < commitCount; i++) {
-				var currentData = rowData[i];
-				var dateAsDay = currentData.date.substring(0, 10);
-				var commit = commits[dateAsDay];
-				if (commit == null) {
-					commits[dateAsDay] = this.newCommit(currentData);
-				}
-				else { commit.commitCount++; }
-			}
-			this.Commits.commitsByDate = commits;
-		}
-		return commits;
+	sortCommitsByDate: function(rowData) {
+		return self.sortCommits(rowData, function(data) { return data.date.substring(0, 10); });
 	}
 
 };
 
-var self = com.github.Repository,
-	MAX_COMMIT_COUNT = 100;
-
-com.github.utils = {
-    searchRepository: function(displayRepository, postFunction) {
-        var query = document.getElementById('searchText').value;
-        var url = 'http://github.com/api/v2/json/repos/search/' + query;
-
-        $.ajax({
-            url: url,
-            dataType: 'jsonp',
-            success: function(data) {
-                $.each(data.repositories, function(i, repository) {
-                    displayRepository(repository, i);
-                });
-                postFunction();
-            }
-        });
-    },
-		
-	loadCommits: function(repository) {
-		var url = 'http://github.com/' +
-            repository.owner +
-            '/' +
-            repository.name +
-            '/network_meta';
-		$.ajax({
-			url: url,
-			dataType: 'jsonp',
-			success: function(data) {
-				repository.nethash = data.nethash;
-				com.github.utils.loadCommitsFromNethash(repository);
-			}
-		});
-	},
-			
-	loadCommitsFromNethash: function(repository) {
-		var url = 'http://github.com/' +
-                repository.owner +
-                '/' +
-                repository.name +
-                '/network_data_chunk?nethash=' +
-                repository.nethash;
-		$.ajax({
-			url: url,
-			dataType: 'jsonp',
-			success: function(data) {
-				data.commits.sort(function(firstCommit, secondCommit) {
-					var comparison = null;
-					if (firstCommit.date < secondCommit.date) { comparison = 1; }
-					else if (firstCommit.date == secondCommit.date) { comparison = 0; }
-					else { comparison = -1; }
-					return comparison;
-				});
-				repository.Commits.rowData = data.commits;
-			}
-		});
-	}
-};
-
+var self = com.github.utils;
+	
 })();
