@@ -27,7 +27,7 @@ if (typeof com == "undefined") {
             var anchor = $('<a/>', {
                 'id': 'detail-a-analysis',
                 'class': 'button',
-                'href': repository.getUrl(),
+                'href': 'repo.html?user=' + repository.owner + '&repo=' + repository.name,
                 html: anchorContent
             });
             return anchor;
