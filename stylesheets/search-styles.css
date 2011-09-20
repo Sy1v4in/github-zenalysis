@@ -1,14 +1,35 @@
+#search .container {
+	padding: 20px;
+}
 
 #search {
 	background-color: #f5f5f5;
-	moz-box-shadow: 11px 3px 23px #0f0f0f;
 	-webkit-box-shadow: 11px 3px 23px #0f0f0f;
-	box-shadow: 11px 3px 23px #0f0f0f;
+	    moz-box-shadow: 11px 3px 23px #0f0f0f;
+	        box-shadow: 11px 3px 23px #0f0f0f;
 }
 
 #result-list { 
-	height: 550px; 
-} 
+	height: 550px;
+}
+ 
+#results .inner {
+	margin: 30px;
+}
+
+#results .inner:after {
+  clear: both;
+}
+
+#result-list {
+	width: 500px;
+	float: left;
+}
+
+#result-details {
+	margin-left: 550px;
+}
+
 
 #result-list .list {
 	background-color: #F6F6F6;
@@ -24,15 +45,13 @@
 	-webkit-box-shadow: 10px 0px 30px -15px rgba(50, 50, 50, 0.5);
 	-moz-box-shadow: 10px 0px 30px -15px rgba(50, 50, 50, 0.5);
 	box-shadow: 10px 0px 30px -15px rgba(50, 50, 50, 0.5);
-	
-	width: 400px;
-	
-	float: left;
+
+	margin-right: 30px;	
 }
 
 #result-list .list li {
 	border-top: 1px solid #eaeaea;
-	padding: 5px 5px;
+	padding: 10px 10px;
 	zoom: 1;
 	list-style: none;
 }
@@ -40,6 +59,7 @@
 #result-list .list li.inactive {
 	cursor: pointer;
 }
+
 #result-list .list li.inactive:hover {
 	background: #fff;
 }
@@ -58,18 +78,22 @@
 	color: #647471;
 	font-size: 16px;
 	text-decoration: none;
+	padding-bottom: 10px;
 }
+
 #result-list .list li.active {
-  background: #e6f3cb;
-  border-color: #d7e5ba;
-  position: relative;
+	background: #e6f3cb;
+	border-color: #d7e5ba;
+	position: relative;
 }
+
 #result-list .list li.active:before {
-  content: url(../img/h-marker.png);
-  position: absolute;
-  right: -11px;
-  top: 20px;
+	content: url(../img/h-marker.png);
+	position: absolute;
+	right: -11px;
+	top: 20px;
 }
+
 #result-list .list li.active h2 a {
   color: #333;
 }
@@ -82,7 +106,6 @@
 #result-list .list li.active + li {
   border-top-color: #d7e5ba;
 }
-
 
 #results #result-details .result-detail {
   display: none;
@@ -153,6 +176,10 @@ box-shadow: -10px 0px 30px -15px rgba(50, 50, 50, 0.5);
 	opacity: 0.25;
 }
 
+li.User div,
+li.anonymous div {
+	margin-bottom: 6px;
+}
 #detail-contributor-login,
 #detail-contributor-login a {
 	color: #359dbb;
@@ -182,7 +209,9 @@ box-shadow: -10px 0px 30px -15px rgba(50, 50, 50, 0.5);
 */
 	width: 700px;
 	height: 550px;
-	float: left;
+	margin:0 auto; 
+	
+/*	float: left;*/
 }
 
 

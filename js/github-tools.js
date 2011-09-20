@@ -7,26 +7,13 @@ if (typeof com == "undefined") { com = {}; }
 com.github = com.github || {};
 
 /**
- * Repository constructor which loads the commit structures according to the 
- * supplied repository name and user name.
+ * Repository constructor with repository name, user name and analysis mode.
  */
-com.github.Repository = function() {
-	var readParams = [];
-	var query = window.location.search.substring(1);
-	var params = query.split('&');
-	for (var i=0; i<params.length; i++) {
-		var param = params[i].split('=');
-		if (param.length > 0) {
-			var key = param[0];
-			var value = param[1];
-			readParams[key] = value;
-		}
-	}
-    this.name = readParams['repo'];
-    this.owner = readParams['user'];
-    this.analysis = readParams['analysis'];
+com.github.Repository = function(repoName, user, analysisMode) {
+	this.name = repoName;
+	this.owner = user;
+	this.analysis = analysisMode;
 };
-
 
 /**
  * Repository class definition.
@@ -67,13 +54,15 @@ com.github.Repository.prototype = {
 	 */
 	timelineUrl: function() { return this.getUrl(TIMELINE); },
 
+	searchUrl: function() { return 'index.html'; },
+	
 	isCommittersAnalysis: function() { return this.analysis == COMMITTERS; },
 	
 	isImpactAnalysis: function() { return this.analysis == IMPACT; },
 
 	isTimelineAnalysis: function() { return this.analysis == TIMELINE; },
 
-	showContributors: function(displayContributor, postFunction) {
+	showContributors: function(displayContributor, listId, postFunction) {
 		var url = 'http://github.com/api/v2/json/repos/show/' +
                 this.owner +
                 '/' +
@@ -96,7 +85,7 @@ com.github.Repository.prototype = {
 					if (contributor.type == null || contributor.type == '') {
 						contributor.type = 'anonymous';
 					}
-					displayContributor(contributor, i);
+					displayContributor(contributor, listId, i);
 				});
 				postFunction();
 			}

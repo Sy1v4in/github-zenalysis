@@ -3,7 +3,6 @@
 <head>
 	<meta charset="utf-8" />
 	<title>Analysis of GitHub repositories activities</title>
-	<link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap-1.2.0.min.css">
 	<link rel="stylesheet" href="stylesheets/styles.css">
 	<link rel="stylesheet" href="stylesheets/search-styles.css" media="screen" />
 	
@@ -23,20 +22,51 @@
 
 	$(document).ready(function(){
 		function showCommitters(repository) {
-			repository.showContributors(com.github.ui.showCommitor, function() {
+			$('#committers').addClass("active");
+			
+			// Creates and add a result-list node element
+			$('<div/>', {
+				'id': 'result-list',
+		    	'class': 'scrollbar'
+			})
+			.append($('<ul/>', { 'class': 'list' }))
+			.appendTo($('#results .inner'));
+			repository.showContributors(com.github.ui.showCommitor, "#result-list .list", function() {
 				$("#result-list").jScrollPane({hideFocus: true });
 			});
 		}
 	
 		function showCommittersAsTreeMap(repository) {
+			$('#impact').addClass("active");
+			$('<div/>', { 'id': 'analysis' }).appendTo($('#results .inner'));
 			repository.commitsByUser(com.github.ui.showCommittersAsTreeMap, 'analysis');
 		}
 		
 		function showCommitsOnTimeline(repository) {
+			$('#timeline').addClass("active");
+			$('<div/>', { 'id': 'analysis' }).appendTo($('#results .inner'));
 			repository.commitsByDate(com.github.ui.showCommitsOnTimeline, '#analysis');
 		}
 		
-		var repository = new com.github.Repository();
+		function newRepository() {
+			var readParams = [];
+			var query = window.location.search.substring(1);
+			var params = query.split('&');
+			for (var i=0; i<params.length; i++) {
+				var param = params[i].split('=');
+				if (param.length > 0) {
+					var key = param[0];
+					var value = param[1];
+					readParams[key] = value;
+				}
+			}
+			var repository = new com.github.Repository(	readParams['repo'],
+														readParams['user'],
+														readParams['analysis']);
+			return repository;
+		}
+			
+		var repository = newRepository();
 		if (repository.isCommittersAnalysis()) {
 			showCommitters(repository);
 		}
@@ -57,18 +87,19 @@
 
 <body >
 
-    <div id="masthead">
-      <div class="inner">
-        <div class="container">
-          <h1>GitHub Analysis</h1>
-          <p class="lead">Analysis of GitHub repositories activities.</p>
-        </div>
-      </div>
-    </div>
+	<section id="header">
+		<div class="inner">
+			<div class="container">
+		    	<h1>GitHub Analysis</h1>
+		    	<p class="lead">Analysis of GitHub repositories activities.</p>
+		  	</div>
+		</div>
+	</section>
 
 	<section id="commands">
-		<div class="row">
-	  		<div class="span16 columns">
+    	<div class="inner">
+			<a id="back" href="index.html">&lt;&lt;&lt;&nbsp;Search</a>
+        	<div class="container">
 	  			<ul>
 		  			<li><a id="committers">Committers</a></li>
 					<li><a id="impact">User commits</a></li>
@@ -79,12 +110,7 @@
 	</section>
 
 	<section id="results">
-		<div class="row">
-	  		<div id="result-list" class="span8 columns scrollbar">
-	  			<ul class='list' />
-			</div>
-			<div id="analysis" class="span8 columns">
-			</div>
+		<div class="inner">
 		</div>
 	</section>
 

@@ -112,8 +112,9 @@ if (typeof com == "undefined") {
             return li;
         },
         
-        showCommitor: function(committer) {
-            $("#result-list .list").append(self.committerLi(committer));
+        showCommitor: function(committer, listId) {
+            $(listId).append(self.committerLi(committer));
+//            $("#result-list .list").append(self.committerLi(committer));
         },
         
         showCommittersAsTreeMap: function(commitsByUser, divId) {
