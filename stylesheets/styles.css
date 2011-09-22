@@ -114,9 +114,9 @@ input:focus {
 	background-repeat: no-repeat;
 	background-image: -webkit-linear-gradient(#339bb9, #88DCB3);
 	background-image: -webkit-gradient(linear, left top, right bottom, from(#339bb9), to(#88DCB3));
-	background-image: -moz-linear-gradient(#D5E8EE, #D7EAF0);
-	background-image: -o-linear-gradient(top, #D5E8EE, #D7EAF0);
-	background-image: -khtml-gradient(linear, left top, left bottom, from(#D5E8EE), to(#D7EAF0));
+	background-image: -moz-linear-gradient(#339bb9, #88DCB3);
+	background-image: -o-linear-gradient(top, #339bb9, #88DCB3);
+	background-image: -khtml-gradient(linear, left top, left bottom, from(#339bb9), to(#88DCB3));
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#D5E8EE', endColorstr='#D7EAF0', GradientType=0); /* IE8 and down */
 }
 
